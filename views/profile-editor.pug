@@ -1,8 +1,9 @@
 doctype html
 html
   head
-    script(src="javascripts/dependencies/require.js")
+    
   body
     input(type="file" id="uploader")
     canvas(id="square-frame" width="480" height="480")
-    script(src="javascripts/photo-uploader-controller.js")
+    script(type="module" src="javascripts/photo-uploader-controller.js")
+    script(type="module" src="javascripts/main.js")

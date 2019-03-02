@@ -1,7 +1,7 @@
 /*This controller will handle the auto-populating of the canvas with input 
 change*/
 
-function pictureEditor(fileBrowser, profileCanvas){
+const pictureEditor = function(fileBrowser, profileCanvas){
 	console.log("photo-uploader-controller");
 	/*Variables*/
 	//file browser
@@ -10,9 +10,11 @@ function pictureEditor(fileBrowser, profileCanvas){
 	let context = profileCanvas.getContext("2d");
 	let canvasImage = new Image();
 	let photoPosition = {left: 0, top:0};
+	let mousePosition = {left:0, top:0};
 	let previousMousePosition = {left:0, top:0};
 	let canvasClicked = false;
 	let firstClick = false;
+	let currentContext = this;
 
 	//
 	this.drawCanvas = function(){
@@ -26,21 +28,20 @@ function pictureEditor(fileBrowser, profileCanvas){
 				console.log(event);
 				let rect = event.srcElement.getBoundingClientRect();
 				let position = {left:event.clientX,top:event.clientY};
-				setPreviousMousePosition(position, rect);
+				currentContext.setPreviousMousePosition(position, rect);
 				context.clearRect(0,0,profileCanvas.width, profileCanvas.height);
 				context.drawImage(canvasImage, photoPosition.left,  photoPosition.top);
 				canvasClicked = true;
 	}
 
 	this.profileCanvasOnMouseMove = function(event){
-		console.log("profileCanvasOnMouseMove()");
 		if(canvasClicked){
 			console.log("drug");
-			let rect = this.getBoundingClientRect();
+			let rect = event.srcElement.getBoundingClientRect();
 			let position = {left:event.clientX,top:event.clientY};
-			let diff = getMousePositionDiff(position, rect);
-			setPhotoPosition(diff);
-			drawCanvas();
+			let diff = currentContext.getMousePositionDiff(position, rect);
+			currentContext.setPhotoPosition(diff);
+			currentContext.drawCanvas();
 		}
 	}
 
@@ -80,15 +81,15 @@ function pictureEditor(fileBrowser, profileCanvas){
 			context.drawImage(canvasImage, 0, 0);
 
 			profileCanvas.addEventListener('mousedown',(event) =>{
-				profileCanvasOnMouseDown(event);
+				currentContext.profileCanvasOnMouseDown(event);
 			});
 
 			profileCanvas.addEventListener('mousemove', function(event){
-				profileCanvasOnMouseMove(event);
+				currentContext.profileCanvasOnMouseMove(event);
 			});
 
 			window.addEventListener('mouseup', function(event){
-				profileCanvasOnMouseUp(event);
+				currentContext.profileCanvasOnMouseUp(event);
 			});
 		}
 	}
@@ -96,8 +97,8 @@ function pictureEditor(fileBrowser, profileCanvas){
 	//Binds a function to the input event
 	fileBrowser.addEventListener("input", ()=>{
 		console.log("file uploader interaction detected");
-		loadImage();
+		currentContext.loadImage();
 	});
-}
+};
 
-module.exports = pictureEditor;
+export default { pictureEditor };
