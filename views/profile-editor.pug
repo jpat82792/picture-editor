@@ -5,5 +5,8 @@ html
   body
     input(type="file" id="uploader")
     canvas(id="square-frame" width="480" height="480")
+    button(id="save-button") 
+      | save
+    script(type="module" src="javascripts/save-picture-controller.js")
     script(type="module" src="javascripts/photo-uploader-controller.js")
     script(type="module" src="javascripts/main.js")

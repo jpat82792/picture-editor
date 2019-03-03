@@ -1,37 +1,72 @@
 /*This controller will handle the auto-populating of the canvas with input 
 change*/
+import savePictureController from './save-picture-controller.js';
 
-const pictureEditor = function(fileBrowser, profileCanvas){
+let mousePosition = {left:0, top:0};
+let previousMousePosition = {left:0, top:0};
+let photoPosition = {left: 0, top:0};
+let hasBeenSaved = false;
+const colorCanvasBackground = (canvas, context) =>{
+	/*context.beginPath();
+	context.rect(0,0,canvas.width, canvas.height );
+	context.fillStyle = "rgba(0,0,0,.5)";
+	context.stroke();*/
+}
+const drawFrame = (canvasImage, left, top, radius, context, circle, canvas, savePhoto) =>{
+	console.log("drawFrame");
+	if(circle){
+		//colorCanvasBackground(canvas, context)
+	}
+	if(hasBeenSaved){
+
+	}
+	context.save();
+	//context.restore();
+	context.beginPath();
+	context.arc(left, top, radius, 0, 2 * Math.PI);
+	context.lineWidth=3;
+	context.strokeStyle="gray";
+	if(savePhoto){
+		context.clip();
+		context.strokeStyle = "transparent";		
+	}else{
+		context.restore();
+	}
+	context.drawImage(canvasImage, photoPosition.left, photoPosition.top);
+
+	if(circle){
+		console.log("is a circle");
+		context.stroke();	
+	}
+	context.save();
+}
+
+const drawCanvas = (canvasImage, left, top, radius, context, canvas, circle, savePhoto) =>{
+	console.log("drawCanvas()");
+	///context.save();
+	context.clearRect(0,0,canvas.width, canvas.height);
+	drawFrame(canvasImage, left, top, radius, context,circle ,canvas, savePhoto);
+};
+
+const pictureEditor = function(fileBrowser, profileCanvas, circle, button){
 	console.log("photo-uploader-controller");
-	/*Variables*/
-	//file browser
-	/*let fileBrowser = document.getElementById("uploader");
-	let profileCanvas = document.getElementById("square-frame");*/
 	let context = profileCanvas.getContext("2d");
 	let canvasImage = new Image();
-	let photoPosition = {left: 0, top:0};
-	let mousePosition = {left:0, top:0};
-	let previousMousePosition = {left:0, top:0};
 	let canvasClicked = false;
 	let firstClick = false;
 	let currentContext = this;
-
-	//
-	this.drawCanvas = function(){
-		console.log("drawCanvas()");
-		context.clearRect(0,0,profileCanvas.width, profileCanvas.height);
-		context.drawImage(canvasImage, photoPosition.left, photoPosition.top);
-	}
+	let canvasMiddleLeft = profileCanvas.width/2;
+	let canvasMiddleTop = profileCanvas.height/2;
+	let radius = canvasMiddleLeft/2;
 
 	this.profileCanvasOnMouseDown = function(event){
-				console.log('profileCanvasOnMouseDown()');
-				console.log(event);
-				let rect = event.srcElement.getBoundingClientRect();
-				let position = {left:event.clientX,top:event.clientY};
-				currentContext.setPreviousMousePosition(position, rect);
-				context.clearRect(0,0,profileCanvas.width, profileCanvas.height);
-				context.drawImage(canvasImage, photoPosition.left,  photoPosition.top);
-				canvasClicked = true;
+		console.log('profileCanvasOnMouseDown()');
+		console.log(event);
+		let rect = event.srcElement.getBoundingClientRect();
+		let position = {left:event.clientX,top:event.clientY};
+		currentContext.setPreviousMousePosition(position, rect);
+		drawCanvas(canvasImage, canvasMiddleLeft, canvasMiddleTop, radius, context , profileCanvas, circle, false);
+		canvasClicked = true;
 	}
 
 	this.profileCanvasOnMouseMove = function(event){
@@ -41,7 +76,7 @@ const pictureEditor = function(fileBrowser, profileCanvas){
 			let position = {left:event.clientX,top:event.clientY};
 			let diff = currentContext.getMousePositionDiff(position, rect);
 			currentContext.setPhotoPosition(diff);
-			currentContext.drawCanvas();
+			drawCanvas(canvasImage, canvasMiddleLeft, canvasMiddleTop, radius, context  , profileCanvas, circle, false );
 		}
 	}
 
@@ -78,7 +113,7 @@ const pictureEditor = function(fileBrowser, profileCanvas){
 		canvasImage.id='profile-picture';
 		canvasImage.onload = function(){
 			photoPosition = {left: 0, top:0};
-			context.drawImage(canvasImage, 0, 0);
+			drawCanvas(canvasImage, canvasMiddleLeft, canvasMiddleTop, radius, context , profileCanvas, circle, false);
 
 			profileCanvas.addEventListener('mousedown',(event) =>{
 				currentContext.profileCanvasOnMouseDown(event);
@@ -99,6 +134,13 @@ const pictureEditor = function(fileBrowser, profileCanvas){
 		console.log("file uploader interaction detected");
 		currentContext.loadImage();
 	});
+
+	button.addEventListener("click", () =>{
+		console.log("saveButton");
+		this.drawCanvas(canvasImage, canvasMiddleLeft, canvasMiddleTop, 
+			radius, context  , profileCanvas, circle, true);
+		savePictureController.savePhoto(profileCanvas);
+	});
 };
 
-export default { pictureEditor };
+export default { pictureEditor, drawCanvas, drawFrame, colorCanvasBackground };
