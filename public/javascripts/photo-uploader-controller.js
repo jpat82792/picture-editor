@@ -2,6 +2,7 @@
 change*/
 import savePictureController from './save-picture-controller.js';
 
+
 let mousePosition = {left:0, top:0};
 let previousMousePosition = {left:0, top:0};
 let photoPosition = {left: 0, top:0};
@@ -140,6 +141,7 @@ const pictureEditor = function(fileBrowser, profileCanvas, circle, button){
 		this.drawCanvas(canvasImage, canvasMiddleLeft, canvasMiddleTop, 
 			radius, context  , profileCanvas, circle, true);
 		savePictureController.savePhoto(profileCanvas);
+		
 	});
 };
 
